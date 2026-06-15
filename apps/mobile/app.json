@@ -1,0 +1,25 @@
+{
+  "expo": {
+    "name": "Open Coach",
+    "slug": "open-coach",
+    "scheme": "opencoach",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "newArchEnabled": true,
+    "splash": {
+      "backgroundColor": "#0A0A0A"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.opencoach.app"
+    },
+    "android": {
+      "package": "com.opencoach.app"
+    },
+    "plugins": ["expo-router"],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}
