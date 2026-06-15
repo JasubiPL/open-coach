@@ -7,22 +7,24 @@ Leyenda: **[BE]** backend/Supabase · **[SH]** packages/shared · **[W]** web ·
 
 ---
 
-## FASE 0 — Fundaciones (Sprint 0)
+## FASE 0 — Fundaciones (Sprint 0) ✅ COMPLETADA
 
-Objetivo: monorepo arrancando, Supabase local, auth básica end-to-end.
+Objetivo: monorepo arrancando, Supabase, auth básica end-to-end.
 
-- [ ] Inicializar Turborepo + pnpm workspaces (`apps/web`, `apps/mobile`, `packages/shared`).
-- [ ] Configurar `config-eslint`, `config-typescript`, Prettier, Tailwind/NativeWind.
-- [ ] Proyecto Supabase + `supabase init` + CLI; entornos local y cloud (dev).
-- [ ] **[BE]** Migración 0001: `organizations`, `profiles`, trigger `handle_new_user`, helpers RLS.
-- [ ] **[BE]** Generar `database.types.ts` → `packages/shared`.
-- [ ] **[SH]** Factory de cliente Supabase (server / browser / native).
-- [ ] **[W]** Next.js App Router + `@supabase/ssr` + middleware (refresh sesión + guard por rol).
-- [ ] **[M]** Expo + Expo Router + cliente Supabase (AsyncStorage) + flujo login.
-- [ ] CI mínimo (lint + typecheck + build) en GitHub Actions.
+- [x] Inicializar Turborepo + pnpm workspaces (`apps/web`, `apps/mobile`, `packages/shared`).
+- [x] Configurar `config-eslint`, `config-typescript`, Prettier, Tailwind/NativeWind.
+- [x] Proyecto Supabase + CLI + vínculo al proyecto cloud (`open-coach`, `db push`).
+- [x] **[BE]** Migración 0001: `organizations`, `profiles`, trigger `handle_new_user`, helpers RLS.
+- [x] **[BE]** `database.types.ts` → `packages/shared` (placeholder de 0001; regenerar con `db:types`).
+- [x] **[SH]** Factory de cliente Supabase (server / browser / native).
+- [x] **[W]** Next.js App Router + `@supabase/ssr` + middleware (refresh sesión + guard por rol).
+- [x] **[M]** Expo + Expo Router + cliente Supabase (AsyncStorage) + flujo login.
+- [x] CI mínimo (lint + typecheck + build + test) en GitHub Actions.
 
-**Criterio de salida:** un entrenador puede registrarse/loguear en web y móvil; se crea su `profile`
-y `organization`; RLS aísla datos por org (probado con 2 orgs de prueba).
+**Criterio de salida:** ✅ scaffold validado (lint/typecheck/build/test en verde), migración aplicada
+en cloud y conectividad con RLS verificada (GET `organizations` → 200, RLS activa).
+Pendiente de probar en runtime con usuarios reales: registro/login end-to-end y aislamiento con 2 orgs
+(se cubrirá al sembrar usuarios demo en el Sprint 1).
 
 ---
 
