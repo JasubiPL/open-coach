@@ -120,14 +120,14 @@ No incluye datos reales ni sensibles.
 `.env.example` en la raíz y por app. Documentadas en el README. Sin credenciales hardcodeadas.
 
 ```bash
-# Supabase (públicas — seguras en cliente)
+# Supabase (públicas — seguras en cliente). Nuevo formato: "publishable key" (sustituye anon key)
 NEXT_PUBLIC_SUPABASE_URL=
-NEXT_PUBLIC_SUPABASE_ANON_KEY=
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=
 EXPO_PUBLIC_SUPABASE_URL=
-EXPO_PUBLIC_SUPABASE_ANON_KEY=
+EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY=
 
-# Server-only (NUNCA expuestas al cliente)
-SUPABASE_SERVICE_ROLE_KEY=
+# Server-only (NUNCA expuestas al cliente). Nuevo formato: "secret key" (sustituye service_role)
+SUPABASE_SECRET_KEY=
 
 # Fase 2 — Stripe
 STRIPE_SECRET_KEY=

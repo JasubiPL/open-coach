@@ -12,7 +12,7 @@ const PUBLIC_PATHS = ['/login', '/signup', '/reset-password', '/auth'];
 export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({ request });
 
-  const supabase = createServerClient<Database>(env.SUPABASE_URL, env.SUPABASE_ANON_KEY, {
+  const supabase = createServerClient<Database>(env.SUPABASE_URL, env.SUPABASE_KEY, {
     cookies: {
       getAll() {
         return request.cookies.getAll();
