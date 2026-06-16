@@ -16,9 +16,9 @@
     "test": "turbo run test",
     "format": "prettier --write \"**/*.{ts,tsx,md,json}\"",
     "format:check": "prettier --check \"**/*.{ts,tsx,md,json}\"",
-    "db:types": "supabase gen types typescript --local > packages/shared/src/types/database.types.ts",
-    "db:reset": "supabase db reset",
-    "db:push": "supabase db push"
+    "db:push": "supabase db push",
+    "db:types": "supabase gen types typescript --linked > packages/shared/src/types/database.types.ts",
+    "db:reset:linked": "supabase db reset --linked"
   },
   "devDependencies": {
     "prettier": "^3.4.2",

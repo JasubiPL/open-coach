@@ -30,14 +30,33 @@ Pendiente de probar en runtime con usuarios reales: registro/login end-to-end y 
 
 ## FASE 1 — MVP
 
-### Sprint 1 — Esquema completo + gestión de clientes
+### Sprint 1 — Esquema completo + gestión de clientes — 🟡 EN CURSO
 
-- [ ] **[BE]** Migraciones del resto del esquema (§3 del spec) con sus índices.
-- [ ] **[BE]** Habilitar RLS y políticas A/B/C en todas las tablas (§4). Tests de RLS (pgTAP o script).
-- [ ] **[BE]** `seed.sql`: 1 org demo, 1 entrenador, 3 clientes, planes Free/Pro/Max.
-- [ ] **[SH]** Zod schemas + queries de clientes, perfiles y planes.
-- [ ] **[W][M]** CRUD de clientes (alta/edición/baja) + invitación de cliente (Route Handler `service_role`).
-- [ ] **[W][M]** Planes de membresía (CRUD) + asignar plan a cliente.
+- [x] **[BE]** Migraciones del resto del esquema (§3) con índices → `0002_schema_core.sql`.
+      Aplicada al proyecto cloud manualmente (SQL Editor) por fallo de `db:push` (faltaba
+      `SUPABASE_DB_PASSWORD`).
+- [x] **[BE]** RLS y políticas A/B/C en todas las tablas (§4) → `0003_rls_policies.sql` (aplicada).
+      Buckets de Storage + políticas → `0004_storage_buckets.sql` (aplicada).
+  - [ ] Tests de RLS (pgTAP o script, 2 orgs) contra preview branch — **pendiente**.
+- [x] **[BE]** `seed.sql` ampliado: org demo, planes Free/Pro/Max, rutina y dieta demo (ejecutado en
+      cloud). _Nota:_ usuarios (entrenador/3 clientes) aún no sembrados — requieren `auth.users` vía
+      admin API; pendiente un `scripts/seed-users`.
+- [x] **[SH]** Zod schemas (invite/update client, plan, assignMembership) + queries (`packages/shared/queries`:
+      profile/client/plan/membership) con inyección de cliente Supabase.
+- [x] **[W]** CRUD de clientes (lista/búsqueda/filtro, editar, baja) + invitación → Server Action con
+      cliente admin (`apps/web/lib/supabase/admin.ts`, `SUPABASE_SECRET_KEY`). _Desviación del §6.3:_
+      se usó Server Action en vez del Route Handler `POST /api/clients/invite` (ambos válidos).
+  - [ ] **[M]** Paridad móvil (Expo): clientes + invitación — **pendiente**.
+- [x] **[W]** Planes de membresía (CRUD + archivar) + asignar plan a cliente (`/trainer/plans`,
+      `/trainer/clients/[id]`).
+  - [ ] **[M]** Paridad móvil (Expo): planes + asignar — **pendiente**.
+
+> **Validación:** typecheck + lint + test + build de web en verde. `database.types.ts` se mantuvo a
+> mano (coincide con el esquema aplicado); regenerar con `pnpm db:types` (`--linked`) cuando el CLI
+> tenga `SUPABASE_DB_PASSWORD`.
+>
+> **Pendiente para cerrar Sprint 1:** (1) paridad móvil de clientes/planes; (2) suite de tests RLS
+> con 2 orgs; (3) seed de usuarios demo (admin API).
 
 ### Sprint 2 — Rutinas y dietas (plantillas)
 

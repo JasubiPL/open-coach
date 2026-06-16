@@ -78,6 +78,13 @@ dirección pero se afinan al llegar a esa fase.
 
 19. ✅ **CI/CD: GitHub Actions** (lint + typecheck + build + tests de RLS).
 
+20. ✅ **Desarrollo 100% Supabase Cloud, sin Docker.** No se usa `supabase start` / Postgres local.
+    Se trabaja siempre contra el proyecto cloud vinculado: `pnpm db:push` aplica migraciones,
+    `pnpm db:types` regenera tipos con `--linked`. Tests de RLS/integración contra un **preview
+    branch** (o proyecto de test), no contra Docker local. Recomendado tener proyectos/branches
+    separados de dev y prod para que el seed (`db:reset:linked`, destructivo) nunca toque datos
+    reales. Ver flujo en `03-convenciones-y-migraciones.md §2.2`.
+
 ---
 
 ## Decisiones que se concretan en su fase (no bloquean el MVP)

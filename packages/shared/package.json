@@ -10,7 +10,8 @@
     "./schemas": "./src/schemas/index.ts",
     "./domain": "./src/domain/index.ts",
     "./types": "./src/types/index.ts",
-    "./supabase": "./src/supabase/index.ts"
+    "./supabase": "./src/supabase/index.ts",
+    "./queries": "./src/queries/index.ts"
   },
   "scripts": {
     "lint": "eslint .",

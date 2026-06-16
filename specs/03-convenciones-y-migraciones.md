@@ -54,8 +54,8 @@
 | Nivel | Herramienta | Qué |
 |-------|-------------|-----|
 | Dominio | Vitest | `resolveAssignmentForDate`, `computeAdherence`, `membershipStatus` |
-| RLS | pgTAP / script SQL con 2 orgs | aislamiento, acceso cliente vs entrenador, datos sensibles |
-| Integración | Vitest + Supabase local | queries reales contra BD efímera |
+| RLS | pgTAP / script SQL con 2 orgs (contra preview branch cloud) | aislamiento, acceso cliente vs entrenador, datos sensibles |
+| Integración | Vitest + Supabase (preview branch cloud) | queries reales contra BD desechable |
 | E2E (post-MVP) | Playwright (web) / Detox o Maestro (móvil) | flujos críticos |
 
 **Innegociable:** suite de RLS que pruebe que la org A no ve datos de la org B y que un cliente no ve
@@ -82,16 +82,26 @@ supabase/
 └─ config.toml
 ```
 
-### 2.2 Flujo de trabajo
+### 2.2 Flujo de trabajo (100% Supabase Cloud — sin Docker)
 
-1. **Desarrollo local:** `supabase start` (Postgres local en Docker).
-2. Crear migración: `supabase migration new <nombre>` y escribir el SQL (o
-   `supabase db diff -f <nombre>` para capturar cambios hechos en local).
-3. Aplicar local: `supabase db reset` (recrea desde 0 + corre `seed.sql`) — verifica que la cadena
-   de migraciones es reproducible.
-4. Regenerar tipos: `supabase gen types typescript --local > packages/shared/src/types/database.types.ts`.
-5. PR. En CI: levantar Supabase, aplicar migraciones, correr tests (incl. RLS).
-6. **Deploy:** `supabase db push` aplica migraciones pendientes al proyecto remoto (dev → prod).
+**Decisión:** el desarrollo NO usa Supabase local ni Docker. Se trabaja siempre contra el proyecto
+cloud vinculado (`supabase link`). Ver ADR §F-20.
+
+1. Crear migración: `supabase migration new <nombre>` y escribir el SQL a mano (las migraciones son
+   la fuente de verdad; nada de cambios manuales en el dashboard que no queden en una migración).
+2. Aplicar al proyecto cloud: `pnpm db:push` (= `supabase db push`). Aplica las migraciones
+   pendientes al remoto vinculado.
+3. Regenerar tipos desde el remoto: `pnpm db:types` (= `supabase gen types typescript --linked`).
+   Se commitea el resultado para que web y móvil compilen sin tocar la BD.
+4. **Seed:** `db push` **no** ejecuta `seed.sql`. Para datos demo, correr el SQL contra el remoto a
+   mano (SQL Editor del dashboard o `psql` con la connection string). `pnpm db:reset:linked`
+   (= `supabase db reset --linked`) recrea el remoto desde 0 + corre `seed.sql`, pero es
+   **DESTRUCTIVO**: úsalo sólo en un proyecto/preview branch de desarrollo, **nunca en producción**.
+5. PR. En CI: aplicar migraciones a un **preview branch** (o proyecto de test) y correr los tests
+   (incl. RLS) contra él. Sin Docker en CI.
+
+> Recomendado: usar dos proyectos Supabase (o preview branches) — uno de desarrollo y otro de
+> producción — para que `db:reset:linked` y el seed nunca toquen datos reales.
 
 ### 2.3 Reglas
 

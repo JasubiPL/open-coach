@@ -32,7 +32,10 @@ supabase/
 
 - Node ≥ 20
 - pnpm 9 (`corepack enable && corepack prepare pnpm@9.15.0 --activate`)
-- [Supabase CLI](https://supabase.com/docs/guides/cli) + Docker (para entorno local)
+- [Supabase CLI](https://supabase.com/docs/guides/cli)
+
+> **Desarrollo 100% en la nube — sin Docker.** Open Coach no usa Supabase local; se trabaja siempre
+> contra un proyecto Supabase cloud vinculado. Ver `specs/03-convenciones-y-migraciones.md §2.2`.
 
 ## Setup
 
@@ -41,12 +44,13 @@ supabase/
 pnpm install
 
 # 2. Variables de entorno
-cp .env.example .env   # rellenar con tus claves de Supabase
+cp .env.example .env   # rellenar con las claves de tu proyecto Supabase cloud
 
-# 3. Base de datos (local con Docker)
-pnpm dlx supabase start         # levanta Postgres/Auth/Storage local
-pnpm dlx supabase db reset      # aplica migrations/ + seed.sql
-pnpm db:types                   # genera packages/shared/src/types/database.types.ts
+# 3. Vincular el proyecto Supabase y aplicar el esquema
+pnpm dlx supabase link --project-ref <ref>
+pnpm db:push                    # aplica supabase/migrations/ al proyecto remoto
+pnpm db:types                   # regenera los tipos desde el remoto (--linked)
+# Seed (opcional, datos demo): pega supabase/seed.sql en el SQL Editor del dashboard.
 
 # 4. Desarrollo
 pnpm dev                        # web + (opcional) móvil vía Turborepo
@@ -55,14 +59,8 @@ pnpm --filter @open-coach/web dev
 pnpm --filter @open-coach/mobile dev
 ```
 
-### Conectar a un proyecto Supabase en la nube
-
-```bash
-pnpm dlx supabase link --project-ref <ref>
-pnpm db:push   # aplica las migraciones al proyecto remoto
-```
-
-Pon en `.env` la URL y la anon key del proyecto (`NEXT_PUBLIC_*` y `EXPO_PUBLIC_*`).
+Pon en `.env` la URL y la publishable key del proyecto (`NEXT_PUBLIC_*` y `EXPO_PUBLIC_*`), y la
+`SUPABASE_SECRET_KEY` (server-only) para operaciones privilegiadas (invitaciones, etc.).
 
 ## Scripts (raíz)
 
@@ -73,9 +71,9 @@ Pon en `.env` la URL y la anon key del proyecto (`NEXT_PUBLIC_*` y `EXPO_PUBLIC_
 | `pnpm lint` | ESLint en todo el monorepo |
 | `pnpm typecheck` | `tsc --noEmit` en todos los paquetes |
 | `pnpm test` | Tests (Vitest) |
-| `pnpm db:reset` | Recrea la BD local desde migraciones + seed |
-| `pnpm db:push` | Aplica migraciones al proyecto Supabase remoto |
-| `pnpm db:types` | Regenera los tipos de la BD |
+| `pnpm db:push` | Aplica migraciones al proyecto Supabase remoto vinculado |
+| `pnpm db:types` | Regenera los tipos desde el remoto (`gen types --linked`) |
+| `pnpm db:reset:linked` | ⚠️ Recrea el remoto desde migraciones + seed (DESTRUCTIVO, solo dev/preview) |
 
 ## Estado
 
