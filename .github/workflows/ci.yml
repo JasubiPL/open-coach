@@ -37,3 +37,8 @@ jobs:
 
       - name: Test
         run: pnpm test
+        # Si los secrets no están configurados, las vars quedan vacías y la suite
+        # de RLS se auto-omite (describe.skipIf); el resto de tests sigue corriendo.
+        env:
+          RLS_TEST_URL: ${{ secrets.RLS_TEST_URL }}
+          RLS_TEST_PUBLISHABLE_KEY: ${{ secrets.RLS_TEST_PUBLISHABLE_KEY }}

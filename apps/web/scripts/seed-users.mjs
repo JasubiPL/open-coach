@@ -1,8 +1,14 @@
-// Siembra usuarios demo (entrenador + clientes) en el proyecto Supabase cloud usando
-// la SECRET KEY (admin API). El trigger handle_new_user crea su profile desde la
-// metadata (organization_id, role, full_name).
+// Siembra usuarios demo (entrenadores + clientes) en el proyecto Supabase cloud
+// usando la SECRET KEY (admin API). El trigger handle_new_user crea su profile
+// desde la metadata (organization_id, role, full_name).
 //
-// Uso:  node --env-file=.env.local scripts/seed-users.mjs
+// Se siembran DOS organizaciones para poder probar el aislamiento multi-tenant:
+//   • Org A (Gimnasio Demo)  → 1 entrenador + 3 clientes
+//   • Org B (Gimnasio Norte) → 1 entrenador + 1 cliente
+// La suite de RLS (packages/shared) usa estos usuarios para verificar que org A
+// no ve datos de org B y que un cliente solo ve lo suyo.
+//
+// Uso:  node --env-file=apps/web/.env.local apps/web/scripts/seed-users.mjs
 //
 // Requiere en .env.local: NEXT_PUBLIC_SUPABASE_URL y SUPABASE_SECRET_KEY.
 // Datos demo, NO para producción. Idempotente: ignora usuarios que ya existen.
@@ -16,13 +22,19 @@ if (!url || !secret) {
   process.exit(1);
 }
 
-const ORG_ID = '00000000-0000-0000-0000-000000000001'; // Gimnasio Demo (seed.sql)
+const ORG_A = '00000000-0000-0000-0000-000000000001'; // Gimnasio Demo  (seed.sql)
+const ORG_B = '00000000-0000-0000-0000-000000000002'; // Gimnasio Norte (seed.sql)
 const PASSWORD = 'Password123!';
 
 const users = [
-  { email: 'entrenador@opencoach.dev', role: 'trainer', full_name: 'Carlos Méndez' },
-  { email: 'mariana@opencoach.dev', role: 'client', full_name: 'Mariana Ruiz' },
-  { email: 'javier@opencoach.dev', role: 'client', full_name: 'Javier Ríos' },
+  // Org A — Gimnasio Demo
+  { email: 'entrenador@opencoach.dev', org: ORG_A, role: 'trainer', full_name: 'Carlos Méndez' },
+  { email: 'mariana@opencoach.dev', org: ORG_A, role: 'client', full_name: 'Mariana Ruiz' },
+  { email: 'javier@opencoach.dev', org: ORG_A, role: 'client', full_name: 'Javier Ríos' },
+  { email: 'lucia@opencoach.dev', org: ORG_A, role: 'client', full_name: 'Lucía Fernández' },
+  // Org B — Gimnasio Norte (solo para probar aislamiento)
+  { email: 'norte.coach@opencoach.dev', org: ORG_B, role: 'trainer', full_name: 'Diana Soto' },
+  { email: 'norte.cliente@opencoach.dev', org: ORG_B, role: 'client', full_name: 'Pedro Lara' },
 ];
 
 const admin = createClient(url, secret, { auth: { persistSession: false } });
@@ -32,7 +44,7 @@ for (const u of users) {
     email: u.email,
     password: PASSWORD,
     email_confirm: true,
-    user_metadata: { organization_id: ORG_ID, role: u.role, full_name: u.full_name },
+    user_metadata: { organization_id: u.org, role: u.role, full_name: u.full_name },
   });
   if (error) {
     console.log(`• ${u.email} → omitido (${error.message})`);

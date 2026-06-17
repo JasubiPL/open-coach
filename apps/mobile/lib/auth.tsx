@@ -1,25 +1,34 @@
 import {
   createContext,
+  useCallback,
   useContext,
   useEffect,
   useState,
   type PropsWithChildren,
 } from 'react';
 import type { Session } from '@supabase/supabase-js';
-import type { UserRole } from '@open-coach/shared';
+import { getMyProfile, type Profile, type UserRole } from '@open-coach/shared';
 import { supabase } from './supabase';
 
 type AuthValue = {
   session: Session | null;
+  profile: Profile | null;
   role: UserRole | null;
+  organizationId: string | null;
   loading: boolean;
 };
 
-const AuthContext = createContext<AuthValue>({ session: null, role: null, loading: true });
+const AuthContext = createContext<AuthValue>({
+  session: null,
+  profile: null,
+  role: null,
+  organizationId: null,
+  loading: true,
+});
 
 export function AuthProvider({ children }: PropsWithChildren) {
   const [session, setSession] = useState<Session | null>(null);
-  const [role, setRole] = useState<UserRole | null>(null);
+  const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -33,20 +42,31 @@ export function AuthProvider({ children }: PropsWithChildren) {
     return () => sub.subscription.unsubscribe();
   }, []);
 
-  useEffect(() => {
+  const loadProfile = useCallback(() => {
     if (!session) {
-      setRole(null);
+      setProfile(null);
       return;
     }
-    supabase
-      .from('profiles')
-      .select('role')
-      .eq('id', session.user.id)
-      .single()
-      .then(({ data }) => setRole(data?.role ?? null));
+    getMyProfile(supabase)
+      .then(setProfile)
+      .catch(() => setProfile(null));
   }, [session]);
 
-  return <AuthContext.Provider value={{ session, role, loading }}>{children}</AuthContext.Provider>;
+  useEffect(loadProfile, [loadProfile]);
+
+  return (
+    <AuthContext.Provider
+      value={{
+        session,
+        profile,
+        role: profile?.role ?? null,
+        organizationId: profile?.organization_id ?? null,
+        loading,
+      }}
+    >
+      {children}
+    </AuthContext.Provider>
+  );
 }
 
 export const useAuth = () => useContext(AuthContext);

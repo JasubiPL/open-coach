@@ -5,16 +5,16 @@
 -- NOTA: los usuarios (auth.users + profiles) NO se siembran aquí porque requieren
 -- registros en auth.users (los crea el flujo de signup/invitación o un script con
 -- la admin API de Supabase). Por eso created_by / created_by quedan en NULL en las
--- plantillas demo. Para sembrar usuarios demo ver scripts/seed-users (pendiente).
+-- plantillas demo. Para sembrar usuarios demo: apps/web/scripts/seed-users.mjs.
 
--- ── Organización demo ────────────────────────────────────────────────────────
+-- ── Organizaciones demo ──────────────────────────────────────────────────────
+-- Dos orgs para poder probar el aislamiento multi-tenant (RLS): la org A es la
+-- principal (con planes/plantillas demo); la org B existe para verificar que sus
+-- usuarios no ven datos de la A (ver scripts/seed-users.mjs y la suite RLS).
 insert into public.organizations (id, name, slug, status)
-values (
-  '00000000-0000-0000-0000-000000000001',
-  'Gimnasio Demo',
-  'gimnasio-demo',
-  'active'
-)
+values
+  ('00000000-0000-0000-0000-000000000001', 'Gimnasio Demo',  'gimnasio-demo',  'active'),
+  ('00000000-0000-0000-0000-000000000002', 'Gimnasio Norte', 'gimnasio-norte', 'active')
 on conflict (id) do nothing;
 
 -- ── Planes de membresía (Free / Pro / Max) ───────────────────────────────────
@@ -31,7 +31,12 @@ values
   ('00000000-0000-0000-0000-000000000103',
    '00000000-0000-0000-0000-000000000001',
    'Max', 'Todo incluido + soporte prioritario.', 120000, 'MXN', 'month',
-   '{"rutinas": true, "dieta": true, "max_rutinas": 99, "soporte": true}'::jsonb, true)
+   '{"rutinas": true, "dieta": true, "max_rutinas": 99, "soporte": true}'::jsonb, true),
+  -- Plan de la Org B (Gimnasio Norte) — para verificar aislamiento entre orgs.
+  ('00000000-0000-0000-0000-000000000111',
+   '00000000-0000-0000-0000-000000000002',
+   'Básico', 'Plan único de Gimnasio Norte.', 50000, 'MXN', 'month',
+   '{"rutinas": true, "dieta": false, "max_rutinas": 2}'::jsonb, true)
 on conflict (id) do nothing;
 
 -- ── Rutina demo (plantilla) ──────────────────────────────────────────────────
